@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback } from "react";
+import { FunctionComponent, useCallback, useState } from "react";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
@@ -7,16 +7,22 @@ import SearchSectionHeader from "../components/SearchSectionHeader";
 import ListingItem from "../components/ListingItem";
 import Footer from "../components/Footer";
 import styles from "./Homepage.module.css";
+import CardList from "./CardList";
 
 const Homepage: FunctionComponent = () => {
   const navigate = useNavigate();
-
+  const [showAll, setShowAll] = useState(false);
   const onListingItemContainerClick = useCallback(() => {
     navigate("/property-details");
   }, [navigate]);
 
   const onShowMoreButtonClick = useCallback(() => {
     //TODO: Please shoe more list items on the click of this button.
+    if(!showAll){
+      setShowAll(true);
+    } else {
+      setShowAll(false);
+    }
   }, []);
 
   return (
@@ -160,6 +166,7 @@ const Homepage: FunctionComponent = () => {
             showBestTime={false}
           />
         </section>
+        <CardList showAll={showAll}></CardList>
         <Button
           className={styles.showMoreButton}
           disableElevation={true}

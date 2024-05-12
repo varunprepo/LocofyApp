@@ -1,4 +1,5 @@
-import { FunctionComponent, useCallback } from "react";
+import { FunctionComponent, useCallback, useState } from "react";
+import { useCookies } from "react-cookie";
 import {
   TextField,
   InputAdornment,
@@ -12,8 +13,31 @@ import { useNavigate } from "react-router-dom";
 import styles from "./SignUpPage.module.css";
 
 const SignUpPage: FunctionComponent = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [cookies, setCookie, removeCookie] = useCookies(undefined);
+
   const navigate = useNavigate();
 
+  const signUp = async(e:any) => {
+    e.preventDefault();
+
+    if (password === confirmPassword) {
+      const response = await fetch(`${"http://localhost:8000"}/signup`,{
+        method:'POST',
+        headers:{'Content-Type':"application/json"},
+        body: JSON.stringify({ email, password })
+
+      });
+      const data = await response.json();
+      setCookie('AuthToken', data.token)
+      //setCookie('UserId', data.userId)
+      navigate('/')
+      // window.location.reload();
+      //console.log(data);
+    }
+  }
   const onIAlreadyHaveClick = useCallback(() => {
     navigate("/sign-in-page");
   }, [navigate]);
@@ -36,6 +60,8 @@ const SignUpPage: FunctionComponent = () => {
                     <TextField
                       className={styles.email}
                       placeholder="Email address"
+                      value={email}
+                      onChange={(e)=> setEmail(e.target.value)}
                       variant="outlined"
                       InputProps={{
                         endAdornment: (
@@ -61,6 +87,8 @@ const SignUpPage: FunctionComponent = () => {
                       placeholder="Password"
                       variant="outlined"
                       type="password"
+                      value={password}
+                      onChange={(e)=> setPassword(e.target.value)}
                       InputProps={{
                         endAdornment: (
                           <img
@@ -85,6 +113,8 @@ const SignUpPage: FunctionComponent = () => {
                       placeholder="Confirm password"
                       variant="outlined"
                       type="password"
+                      value={confirmPassword}
+                      onChange={(e)=> setConfirmPassword(e.target.value)}
                       InputProps={{
                         endAdornment: (
                           <img
@@ -108,6 +138,7 @@ const SignUpPage: FunctionComponent = () => {
                   <Button
                     className={styles.searchFlightsButton}
                     disableElevation={true}
+                    onClick={signUp}
                     variant="contained"
                     sx={{
                       textTransform: "none",

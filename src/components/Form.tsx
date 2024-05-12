@@ -1,4 +1,5 @@
-import { FunctionComponent, useCallback } from "react";
+import { FunctionComponent, useCallback, useState } from "react";
+import { useCookies } from "react-cookie";
 import {
   TextField,
   InputAdornment,
@@ -11,12 +12,32 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Form.module.css";
 
 const Form: FunctionComponent = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [cookies, setCookie] = useCookies(undefined);
+
   const navigate = useNavigate();
 
   const onDontHaveAnClick = useCallback(() => {
     navigate("/sign-up-page");
   }, [navigate]);
 
+  const login = async(e: any) => {
+      e.preventDefault();    
+      const response = await fetch(`${"http://localhost:8000"}/login`,{
+        method:'POST',
+        headers:{'Content-Type':"application/json"},
+        body: JSON.stringify({ email, password })
+
+      });
+      const data = await response.json();
+      setCookie('AuthToken', data.token)
+      //setCookie('UserId', data.userId)
+      navigate('/')
+      //window.location.reload();
+      //console.log(data);
+    
+  }
   return (
     <div className={styles.form}>
       <div className={styles.credentialsArea}>
@@ -28,6 +49,8 @@ const Form: FunctionComponent = () => {
                 className={styles.email}
                 placeholder="Email address"
                 variant="outlined"
+                value={email}
+                onChange={(e)=> setEmail(e.target.value)}
                 InputProps={{
                   endAdornment: (
                     <img width="20px" height="20px" src="/iconaccount.svg" />
@@ -48,6 +71,8 @@ const Form: FunctionComponent = () => {
                 placeholder="Password"
                 variant="outlined"
                 type="password"
+                value={password}
+                onChange={(e)=> setPassword(e.target.value)}
                 InputProps={{
                   endAdornment: (
                     <img width="20px" height="20px" src="/iconpassword.svg" />
@@ -68,6 +93,7 @@ const Form: FunctionComponent = () => {
               className={styles.searchFlightsButton}
               disableElevation={true}
               variant="contained"
+              onClick={login}
               sx={{
                 textTransform: "none",
                 color: "#fff",
